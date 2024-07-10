@@ -25,7 +25,7 @@ class ErrorResult {
   }
 
   public toString(): string {
-    return this.type;
+    return `${this.type}: ${this.message}`;
   }
 }
 export default ErrorResult;

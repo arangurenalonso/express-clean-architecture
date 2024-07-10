@@ -36,6 +36,7 @@ import ValidateEmailCommandHandler from '@application/features/auth/command/vali
 import OutboxMessageJob from '@job/cronJobs/outbox-message.job';
 import CronService from '@job/cron.service';
 import AuthenticationMiddleware from '@rest/middlewares/authentication.middleware';
+import ResultT from '@domain/abstract/result/resultT';
 
 class DependencyContainer {
   private readonly _container: Container;
@@ -104,7 +105,7 @@ class DependencyContainer {
       .bind<IRequestHandler<LoginCommand, AuthenticationResult>>('LoginCommand')
       .to(LoginCommandHandler);
     this._container
-      .bind<IRequestHandler<RegisterCommand, AuthenticationResult>>(
+      .bind<IRequestHandler<RegisterCommand, ResultT<AuthenticationResult>>>(
         'RegisterCommand'
       )
       .to(RegisterCommandHandler);

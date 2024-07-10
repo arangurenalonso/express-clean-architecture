@@ -1,27 +1,32 @@
+import ResultT from '@domain/abstract/result/resultT';
 import { validate as uuidValidate, v4 as uuidv4 } from 'uuid';
+import UserErrors from '../error/user.error';
 
 class UserId {
   private readonly _value: string;
 
   private constructor(value: string) {
     this._value = value;
-    this.validate(value);
   }
 
-  public static create(value?: string): UserId {
+  public static create(value?: string): ResultT<UserId> {
     if (!value) {
       value = uuidv4();
     }
-    return new UserId(value);
+    if (!this.validate(value)) {
+      return ResultT.Failure<UserId>(UserErrors.USER_INVALID_ID(value));
+    }
+    return ResultT.Success<UserId>(new UserId(value));
   }
 
-  private validate(value: string) {
+  private static validate(value: string): boolean {
     if (!value) {
-      throw new Error('Todo ID cannot be empty.');
+      return false;
     }
     if (!uuidValidate(value)) {
-      throw new Error('Todo ID is not a valid UUID');
+      return false;
     }
+    return true;
   }
 
   get value(): string {

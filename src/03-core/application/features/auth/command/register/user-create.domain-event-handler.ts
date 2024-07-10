@@ -27,7 +27,11 @@ class UserCreatedDomainEventHandler
   private async getUser(id?: string): Promise<UserDomain> {
     let user: UserDomain | null = null;
     if (id) {
-      user = await this._userRepository.getUserById(id);
+      const userResult = await this._userRepository.getUserById(id);
+      if (userResult.isFailure) {
+        throw new Error(userResult.error.toString());
+      }
+      user = userResult.value;
     }
     if (!user) {
       throw new Error(`user not found. id: '${id}'`);

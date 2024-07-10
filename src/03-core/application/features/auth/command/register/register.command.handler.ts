@@ -8,12 +8,15 @@ import AuthenticationResult from '@application/models/authentication-result.mode
 import IUnitOfWork from '@domain/repositories/commun/IUnitOfWork';
 import IPasswordService from '@application/contracts/Ipassword.service';
 import ITokenService from '@application/contracts/IToken.service';
-import IOutboxMessageRepository from '@domain/repositories/IOutboxMessage.repository';
+import ResultT from '@domain/abstract/result/resultT';
+import Result from '@domain/abstract/result/result';
+import UserErrors from '@domain/user/error/user.error';
+import UserApplicationErrors from '@application/errors/user.application.error';
 
 @injectable()
 @requestHandler(RegisterCommand)
 class RegisterCommandHandler
-  implements IRequestHandler<RegisterCommand, AuthenticationResult>
+  implements IRequestHandler<RegisterCommand, ResultT<AuthenticationResult>>
 {
   constructor(
     @inject(TYPES.IUserRepository) private _userRepository: IUserRepository,
@@ -21,17 +24,25 @@ class RegisterCommandHandler
     @inject(TYPES.ITokenService) private _tokenService: ITokenService,
     @inject(TYPES.IPasswordService) private _passwordService: IPasswordService
   ) {}
-  async handle(command: RegisterCommand): Promise<AuthenticationResult> {
-    await this.validate(command.email, command.username);
+  async handle(
+    command: RegisterCommand
+  ): Promise<ResultT<AuthenticationResult>> {
+    const validation = await this.validate(command.email, command.username);
+    if (validation.isFailure) {
+      return ResultT.Failure<AuthenticationResult>(validation.error);
+    }
 
     const passwordHash = await this._passwordService.encrypt(command.password);
 
-    const user = UserDomain.create({
+    const userResult = UserDomain.create({
       username: command.username,
       email: command.email,
       passwordHash: passwordHash,
     });
-
+    if (userResult.isFailure) {
+      return ResultT.Failure<AuthenticationResult>(userResult.error);
+    }
+    const user = userResult.value;
     try {
       await this._unitOfWork.startTransaction();
       await this._unitOfWork.userRepository.registerUser(user);
@@ -40,27 +51,41 @@ class RegisterCommandHandler
       await this._unitOfWork.commit();
     } catch (error) {
       await this._unitOfWork.rollback();
-      throw error;
+      return ResultT.Failure<AuthenticationResult>(
+        UserApplicationErrors.USER_CREATE_ERROR(`${error}`)
+      );
     }
     const token = await this._tokenService.generateToken({
       userId: user.properties.id!,
       username: user.properties.username,
       email: user.properties.email,
     });
-    return new AuthenticationResult(token, true, '');
+
+    return ResultT.Success<AuthenticationResult>(
+      new AuthenticationResult(token, true, '')
+    );
   }
-  private async validate(email: string, username: string): Promise<void> {
+  private async validate(email: string, username: string): Promise<Result> {
     if (!email && !username) {
-      throw new Error('Email or username is required.');
+      return Result.Failure(UserErrors.USER_UNERNAME_EMAIL_REQUIRED);
     }
     const userEmail = await this._userRepository.getUserByEmail(email);
-    if (userEmail) {
-      throw new Error(`User with email ${email} already exist.`);
+    if (userEmail.isFailure) {
+      return Result.Failure(userEmail.error);
+    }
+    if (userEmail.value) {
+      return Result.Failure(UserErrors.USER_ALREADY_EXISTS('email', email));
     }
     const userUsername = await this._userRepository.getUserByUsername(username);
-    if (userUsername) {
-      throw new Error(`User with username ${username} already exist.`);
+    if (userUsername.isFailure) {
+      return Result.Failure(userUsername.error);
     }
+    if (userUsername.value) {
+      return Result.Failure(
+        UserErrors.USER_ALREADY_EXISTS('username', username)
+      );
+    }
+    return Result.Success();
   }
 }
 export default RegisterCommandHandler;

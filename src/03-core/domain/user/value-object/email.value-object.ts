@@ -1,20 +1,24 @@
+import ResultT from '@domain/abstract/result/resultT';
 import regularExps from '@domain/helpers/regular-exp';
+import UserErrors from '../error/user.error';
 
 class Email {
   private readonly _value: string;
 
   private constructor(value: string) {
-    if (!Email.validate(value)) {
-      throw new Error('The Username is not a valid email.');
-    }
     this._value = value;
   }
 
-  public static create(value?: string | null): Email | null {
+  public static create(value?: string | null): ResultT<Email | null> {
     if (!value) {
-      return null;
+      return ResultT.Success<null>(null);
     }
-    return new Email(value);
+    if (!this.validate(value)) {
+      return ResultT.Failure<Email | null>(
+        UserErrors.USER_INVALID_EMAIL(value)
+      );
+    }
+    return ResultT.Success<Email>(new Email(value));
   }
   private static validate(value: string): boolean {
     return regularExps.email.test(value);

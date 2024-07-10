@@ -5,6 +5,8 @@ import UserDomain from '@domain/user/User.domain';
 import UserEntity from '@persistence/entities/user.entity';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import BaseRepository from './commun/BaseRepository';
+import ResultT from '@domain/abstract/result/resultT';
+import Result from '@domain/abstract/result/result';
 
 @injectable()
 class UserRepository
@@ -31,42 +33,65 @@ class UserRepository
     }
   }
 
-  async getUserById(id: string): Promise<UserDomain | null> {
+  async getUserById(id: string): Promise<ResultT<UserDomain | null>> {
     const userEntity = await this._repository.findOneBy({
       id: id,
     });
-    const userDomain = userEntity ? this.toDomain(userEntity) : null;
-    return userDomain;
+    if (!userEntity) {
+      return ResultT.Success<null>(null);
+    }
+    const userDomainResult = this.toDomain(userEntity);
+    if (userDomainResult.isFailure) {
+      return ResultT.Failure<UserDomain>(userDomainResult.error);
+    }
+    const user = userDomainResult.value;
+    return ResultT.Success<UserDomain>(user);
   }
 
   protected get repository(): Repository<UserEntity> {
     return this._repository;
   }
 
-  async getUserByUsername(username?: string): Promise<UserDomain | null> {
+  async getUserByUsername(
+    username?: string
+  ): Promise<ResultT<UserDomain | null>> {
     // const repository = this._datasource.getRepository(UserEntity);
     // const userEntity = await repository.findOneBy({
     //   username: username,
     // });
     if (!username) {
-      return null;
+      return ResultT.Success<null>(null);
     }
     const userEntity = await this._repository.findOneBy({
       username: username,
     });
-    const userDomain = userEntity ? this.toDomain(userEntity) : null;
-    return userDomain;
+    if (!userEntity) {
+      return ResultT.Success<null>(null);
+    }
+    const userDomainResult = this.toDomain(userEntity);
+    if (userDomainResult.isFailure) {
+      return ResultT.Failure<UserDomain>(userDomainResult.error);
+    }
+    const user = userDomainResult.value;
+    return ResultT.Success<UserDomain>(user);
   }
-  async getUserByEmail(email?: string): Promise<UserDomain | null> {
+  async getUserByEmail(email?: string): Promise<ResultT<UserDomain | null>> {
     if (!email) {
-      return null;
+      return ResultT.Success<null>(null);
     }
     const userEntity = await this._repository.findOneBy({
       email: email,
     });
 
-    const userDomain = userEntity ? this.toDomain(userEntity) : null;
-    return userDomain;
+    if (!userEntity) {
+      return ResultT.Success<null>(null);
+    }
+    const userDomainResult = this.toDomain(userEntity);
+    if (userDomainResult.isFailure) {
+      return ResultT.Failure<UserDomain>(userDomainResult.error);
+    }
+    const user = userDomainResult.value;
+    return ResultT.Success<UserDomain>(user);
   }
   async registerUser(user: UserDomain): Promise<void> {
     const userEntity = this.toEntity(user);
@@ -83,13 +108,17 @@ class UserRepository
     await this.update(userEntity);
   }
 
-  private toDomain(userEntity: UserEntity): UserDomain {
-    return UserDomain.create({
+  private toDomain(userEntity: UserEntity): ResultT<UserDomain> {
+    const userDomainResult = UserDomain.create({
       id: userEntity.id,
       username: userEntity.username,
       email: userEntity.email,
       passwordHash: userEntity.passwordHash,
     });
+    if (userDomainResult.isFailure) {
+      return ResultT.Failure<UserDomain>(userDomainResult.error);
+    }
+    return ResultT.Success<UserDomain>(userDomainResult.value);
   }
   private toEntity(userDomain: UserDomain): UserEntity {
     const userEntity = new UserEntity();

@@ -5,6 +5,7 @@ import TodoId from './value-object/user-id.value-object';
 import BaseDomain from '@domain/abstract/base.domain';
 import Username from './value-object/username.value-object';
 import UserCreatedDomainEvent from './events/user-created.domain-event';
+import ResultT from '@domain/abstract/result/resultT';
 
 interface UserDomainProperties {
   id?: string;
@@ -32,17 +33,32 @@ class UserDomain extends BaseDomain<TodoId> {
     this._username = properties.username;
   }
 
-  public static create(properties: UserDomainProperties): UserDomain {
-    const id = UserId.create(properties.id);
-    const email = Email.create(properties.email);
-    const passwordHash = PasswordHash.create(properties.passwordHash);
-    const username = Username.create(properties.username);
+  public static create(properties: UserDomainProperties): ResultT<UserDomain> {
+    const resultId = UserId.create(properties.id);
+    if (resultId.isFailure) {
+      return ResultT.Failure<UserDomain>(resultId.error);
+    }
+    const resultEmail = Email.create(properties.email);
+    if (resultEmail.isFailure) {
+      return ResultT.Failure<UserDomain>(resultEmail.error);
+    }
+    const resultPasswordHash = PasswordHash.create(properties.passwordHash);
+    if (resultPasswordHash.isFailure) {
+      return ResultT.Failure<UserDomain>(resultPasswordHash.error);
+    }
+    const resultUsername = Username.create(properties.username);
+
+    const passwordHash = resultPasswordHash.value;
+    const id = resultId.value;
+    const email = resultEmail.value;
+    const username = resultUsername.value;
+
     const user = new UserDomain({ id, email, passwordHash, username });
     if (!properties.id) {
       user.raiseDomainEvent(new UserCreatedDomainEvent(user._id.value));
     }
 
-    return user;
+    return ResultT.Success<UserDomain>(user);
   }
 
   get properties(): UserDomainProperties {
