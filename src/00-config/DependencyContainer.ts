@@ -28,13 +28,13 @@ import IOutboxMessageRepository from '@domain/repositories/IOutboxMessage.reposi
 import OutboxMessageRepository from '@persistence/repositories/OutboxMessage.repository.impl';
 import ExecOutboxMessagesCommand from '@application/features/outboxMessages/command/exec-outboxMessages.command';
 import ExecOutboxMessagesCommandHandler from '@application/features/outboxMessages/command/exec-outboxMessages.command.handler';
-import JobServer from 'src/01-presentation/job/job.server';
+import JobServer from '@job/job.server';
 import IEmailService from '@application/contracts/IEmail.service';
 import EmailService from '@service/emial.service.impl';
 import ValidateEmailCommand from '@application/features/auth/command/validate-email/validate-email.command';
 import ValidateEmailCommandHandler from '@application/features/auth/command/validate-email/validate-email.command.handler';
-import OutboxMessageJob from 'src/01-presentation/job/cronJobs/outbox-message.job';
-import CronService from 'src/01-presentation/job/cron.service';
+import OutboxMessageJob from '@job/cronJobs/outbox-message.job';
+import CronService from '@job/cron.service';
 import AuthenticationMiddleware from '@rest/middlewares/authentication.middleware';
 
 class DependencyContainer {

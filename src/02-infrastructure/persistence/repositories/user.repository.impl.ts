@@ -1,5 +1,5 @@
 import { inject, injectable, optional } from 'inversify';
-import TYPES from 'src/00-config/identifiers';
+import TYPES from '@config/identifiers';
 import IUserRepository from '@domain/repositories/IUser.repository';
 import UserDomain from '@domain/user/User.domain';
 import UserEntity from '@persistence/entities/user.entity';

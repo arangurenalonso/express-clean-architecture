@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
-import TYPES from 'src/00-config/identifiers';
+import TYPES from '@config/identifiers';
 import { inject, injectable } from 'inversify';
-import EnvironmentConfig from 'src/00-config/enviromentConfig';
+import EnvironmentConfig from '@config/enviromentConfig';
 
 @injectable()
 class TypeORMInitializer {

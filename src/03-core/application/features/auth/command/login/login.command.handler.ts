@@ -1,4 +1,4 @@
-import TYPES from 'src/00-config/identifiers';
+import TYPES from '@config/identifiers';
 import { injectable, inject } from 'inversify';
 import { requestHandler, IRequestHandler } from 'mediatr-ts';
 import LoginCommand from './login.command';

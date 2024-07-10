@@ -31,6 +31,7 @@
     "baseUrl": "./" /* Specify the base directory to resolve non-relative module names. */,
     "paths": {
       "@rest/*": ["src/01-presentation/rest/*"],
+      "@job/*": ["src/01-presentation/job/*"],
       "@persistence/*": ["src/02-infrastructure/persistence/*"],
       "@service/*": ["src/02-infrastructure/service/*"],
       "@domain/*": ["src/03-core/domain/*"],

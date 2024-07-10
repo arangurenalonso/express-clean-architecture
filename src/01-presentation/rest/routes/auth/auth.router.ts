@@ -4,7 +4,7 @@ import LoginValidation from './validators/login.validator';
 import ValidatorMiddleware from '@rest/middlewares/validator.middleware';
 import RegisterValidation from './validators/register.validator';
 import { inject, injectable } from 'inversify';
-import TYPES from 'src/00-config/identifiers';
+import TYPES from '@config/identifiers';
 
 @injectable()
 export class AuthRoutes {

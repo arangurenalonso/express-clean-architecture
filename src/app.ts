@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import ExpressServer from './01-presentation/rest/express.server';
-import DependencyContainer from 'src/00-config/DependencyContainer';
-import TYPES from 'src/00-config/identifiers';
-import InversifyResolver from 'src/00-config/inversify.resolver';
+import DependencyContainer from './00-config/DependencyContainer';
+import TYPES from '@config/identifiers';
+import InversifyResolver from '@config/inversify.resolver';
 import TypeORMInitializer from '@persistence/config/typeorm.config';
 import { mediatorSettings } from 'mediatr-ts';
 import JobServer from './01-presentation/job/job.server';

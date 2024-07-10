@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import TYPES from 'src/00-config/identifiers';
+import TYPES from '@config/identifiers';
 import { DataSource, EntityManager, In, IsNull, Repository } from 'typeorm';
 import BaseRepository from './commun/BaseRepository';
 import IOutboxMessageRepository from '@domain/repositories/IOutboxMessage.repository';

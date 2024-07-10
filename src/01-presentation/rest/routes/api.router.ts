@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import AuthRoutes from './auth/auth.router';
-import TYPES from 'src/00-config/identifiers';
+import TYPES from '@config/identifiers';
 import { inject, injectable } from 'inversify';
 
 @injectable()
