@@ -102,7 +102,9 @@ class DependencyContainer {
   }
   private bindUseCase(): void {
     this._container
-      .bind<IRequestHandler<LoginCommand, AuthenticationResult>>('LoginCommand')
+      .bind<IRequestHandler<LoginCommand, ResultT<AuthenticationResult>>>(
+        'LoginCommand'
+      )
       .to(LoginCommandHandler);
     this._container
       .bind<IRequestHandler<RegisterCommand, ResultT<AuthenticationResult>>>(

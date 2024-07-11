@@ -4,7 +4,7 @@ class UserApplicationErrors {
   static readonly USER_CREATE_ERROR = (error: string): ErrorResult => {
     return new ErrorResult(
       'User.Create',
-      `Error while User create ${error}`,
+      `Error while User create:  ${error}`,
       500
     );
   };

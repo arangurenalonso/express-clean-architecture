@@ -2,12 +2,12 @@ import ErrorResult from '@domain/abstract/result/error';
 
 class UserErrors {
   static readonly USER_UNERNAME_EMAIL_REQUIRED: ErrorResult = new ErrorResult(
-    'Usuario.Create',
+    'User.Create',
     'Username and Email are required',
     400
   );
   static readonly USER_NOT_FOUND: ErrorResult = new ErrorResult(
-    'Usuario.Get',
+    'User.Get',
     'User does not Found',
     404
   );
@@ -16,10 +16,10 @@ class UserErrors {
     value: string
   ): ErrorResult => {
     return new ErrorResult(
-      'Usuario.Exist',
-      `User ${
+      'User.Exist',
+      `User with ${
         type.charAt(0).toUpperCase() + type.slice(1)
-      } "${value}" already exists`,
+      } '${value}' already exists`,
       400
     );
   };

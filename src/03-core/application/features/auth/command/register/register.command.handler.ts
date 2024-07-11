@@ -27,10 +27,10 @@ class RegisterCommandHandler
   async handle(
     command: RegisterCommand
   ): Promise<ResultT<AuthenticationResult>> {
-    const validation = await this.validate(command.email, command.username);
-    if (validation.isFailure) {
-      return ResultT.Failure<AuthenticationResult>(validation.error);
-    }
+    // const validation = await this.validate(command.email, command.username);
+    // if (validation.isFailure) {
+    //   return ResultT.Failure<AuthenticationResult>(validation.error);
+    // }
 
     const passwordHash = await this._passwordService.encrypt(command.password);
 
@@ -45,12 +45,15 @@ class RegisterCommandHandler
     const user = userResult.value;
     try {
       await this._unitOfWork.startTransaction();
+
       await this._unitOfWork.userRepository.registerUser(user);
+
       this._unitOfWork.collectDomainEvents([user]);
 
       await this._unitOfWork.commit();
     } catch (error) {
       await this._unitOfWork.rollback();
+
       return ResultT.Failure<AuthenticationResult>(
         UserApplicationErrors.USER_CREATE_ERROR(`${error}`)
       );

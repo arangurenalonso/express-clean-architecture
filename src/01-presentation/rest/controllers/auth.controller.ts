@@ -1,7 +1,9 @@
 import LoginCommand from '@application/features/auth/command/login/login.command';
 import RegisterCommand from '@application/features/auth/command/register/register.command';
 import ValidateEmailCommand from '@application/features/auth/command/validate-email/validate-email.command';
+import AuthenticationResult from '@application/models/authentication-result.model';
 import TYPES from '@config/identifiers';
+import ResultT from '@domain/abstract/result/resultT';
 import { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { Mediator } from 'mediatr-ts';
@@ -21,8 +23,9 @@ class AuthController {
       username: string;
     };
     const command = new LoginCommand(username, email, password);
-    const token = await this._mediator.send(command);
-    res.json(token);
+    const tokenResult: ResultT<AuthenticationResult> =
+      await this._mediator.send(command);
+    return tokenResult;
   }
   public async register(req: Request, res: Response) {
     const { email, password, username } = req.body as {
@@ -31,15 +34,15 @@ class AuthController {
       username: string;
     };
     const command = new RegisterCommand(username, email, password);
-    const token = await this._mediator.send(command);
-    res.json(token);
+    const tokenResult = await this._mediator.send(command);
+    return tokenResult;
   }
   public async validateEmail(req: Request, res: Response) {
     const { token } = req.params;
 
     const command = new ValidateEmailCommand(token);
     await this._mediator.send(command);
-    res.send('Email validated');
+    return 'Email validated';
   }
 }
 export default AuthController;
